@@ -3,6 +3,7 @@
 #show: callout-style.with(style: "quarto")
  #show: js.with(
    lang: "ja",
+   sansfont: "Linux Biolinum",
    seriffont-cjk: "Noto Serif CJK JP",
    sansfont-cjk: "Noto Sans CJK JP"
  )
@@ -43,6 +44,8 @@ $
 #note[これはnoteのコールアウトです]
 #tip[これはtipのコールアウトです]
 #important[これはimportantのコールアウトです]
+
+これで完成です。
 
 
 
