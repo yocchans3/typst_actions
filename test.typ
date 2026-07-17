@@ -3,7 +3,7 @@
 #show: callout-style.with(style: "quarto")
  #show: js.with(
    lang: "ja",
-   seriffont-cjk: "Noto Sans CJK JP",
+   seriffont-cjk: "Noto Serif CJK JP",
    sansfont-cjk: "Noto Sans CJK JP"
  )
 
