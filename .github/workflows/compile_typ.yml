@@ -34,8 +34,10 @@ jobs:
               # workflowファイルが書き換えられたらキャッシュを無効化するキー設定
               key: ${{ runner.os }}-fontist-${{ hashFiles('.github/workflows/*.yml') }}
 
-          # 2. fontist コマンドを使えるようにする
-          - uses: fontist/setup-fontist@v2
+          # 2. キャッシュがない時だけ fontist 自体をインストールする
+          - name: Setup fontist
+            if: steps.font-cache.outputs.cache-hit != 'true'
+            uses: fontist/setup-fontist@v2
 
           # 3. キャッシュヒットしなかった（新規実行 or キャッシュ切れ）場合のみインストール
           - name: Install CJK Fonts
