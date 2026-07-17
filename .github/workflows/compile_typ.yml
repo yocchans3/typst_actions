@@ -22,49 +22,49 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
 
-steps:
-      - uses: actions/checkout@v7
-      
-      # 1. ~/.fontist フォルダをキャッシュとして保存・復元する設定
-      - name: Cache Fonts
-        id: font-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.fontist
-          # workflowファイルが書き換えられたらキャッシュを無効化するキー設定
-          key: ${{ runner.os }}-fontist-${{ hashFiles('.github/workflows/*.yml') }}
-
-      # 2. fontist コマンドを使えるようにする
-      - uses: fontist/setup-fontist@v2
-
-      # 3. キャッシュヒットしなかった（新規実行 or キャッシュ切れ）場合のみインストール
-      - name: Install CJK Fonts
-        if: steps.font-cache.outputs.cache-hit != 'true'
-        run: |
-          fontist install --formula "noto_sans_cjk"
-          fontist install --formula "noto_serif_cjk"
-
-      - uses: typst-community/setup-typst@v5
-      
-      - name: Compile Typst to PDF
-        run: |
-          # 公開用のフォルダを作成
-          mkdir public
+    steps:
+          - uses: actions/checkout@v7
           
-          # publicフォルダの中にPDFを生成
-          typst compile test.typ public/test.pdf --font-path ~/.fontist/fonts
-          
-          # URLにアクセスした際、自動でPDFを開くためのリダイレクト用HTMLを作成
-          echo '<!DOCTYPE html><meta charset="utf-8"><title>Document</title><meta http-equiv="refresh" content="0; URL=test.pdf">' > public/index.html
+          # 1. ~/.fontist フォルダをキャッシュとして保存・復元する設定
+          - name: Cache Fonts
+            id: font-cache
+            uses: actions/cache@v4
+            with:
+              path: ~/.fontist
+              # workflowファイルが書き換えられたらキャッシュを無効化するキー設定
+              key: ${{ runner.os }}-fontist-${{ hashFiles('.github/workflows/*.yml') }}
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './public'
+          # 2. fontist コマンドを使えるようにする
+          - uses: fontist/setup-fontist@v2
+
+          # 3. キャッシュヒットしなかった（新規実行 or キャッシュ切れ）場合のみインストール
+          - name: Install CJK Fonts
+            if: steps.font-cache.outputs.cache-hit != 'true'
+            run: |
+              fontist install --formula "noto_sans_cjk"
+              fontist install --formula "noto_serif_cjk"
+
+          - uses: typst-community/setup-typst@v5
           
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          - name: Compile Typst to PDF
+            run: |
+              # 公開用のフォルダを作成
+              mkdir public
+              
+              # publicフォルダの中にPDFを生成
+              typst compile test.typ public/test.pdf --font-path ~/.fontist/fonts
+              
+              # URLにアクセスした際、自動でPDFを開くためのリダイレクト用HTMLを作成
+              echo '<!DOCTYPE html><meta charset="utf-8"><title>Document</title><meta http-equiv="refresh" content="0; URL=test.pdf">' > public/index.html
+
+          - name: Setup Pages
+            uses: actions/configure-pages@v5
+            
+          - name: Upload artifact
+            uses: actions/upload-pages-artifact@v3
+            with:
+              path: './public'
+              
+          - name: Deploy to GitHub Pages
+            id: deployment
+            uses: actions/deploy-pages@v4
