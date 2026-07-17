@@ -1,0 +1,12 @@
+name: Render paper.pdf
+on: push
+jobs:
+  render-paper:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: fontist/setup-fontist@v2
+        - run: fontist install --formula "noto_sans_cjk"
+        - uses: actions/checkout@v7
+        - uses: typst-community/setup-typst@v5
+        # 🎉 Now Typst is installed!
+        - run: typst compile test.typ test.pdf --font-path ~/.fontist/fonts
