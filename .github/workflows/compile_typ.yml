@@ -1,29 +1,51 @@
-name: Render paper.pdf
+name: Deploy PDF to GitHub Pages
+
 on:
   push:
-    branches: [ "main" ] # mainブランチにPushされた時のみ動かすのがおすすめ
+    branches: ["main"] # mainブランチにPushされたときのみ実行
 
-# GITHUB_TOKENに書き込み権限を付与
+# GitHub Pagesへのデプロイに必要な権限設定
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時実行を制御（古いデプロイをキャンセルして最新を優先）
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  render-paper:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-        - uses: fontist/setup-fontist@v2
-        - run: fontist install --formula "noto_sans_cjk"
-        - uses: actions/checkout@v7
-        - uses: typst-community/setup-typst@v5
+      - uses: actions/checkout@v7
+      - uses: fontist/setup-fontist@v2
+      - run: fontist install --formula "noto_sans_cjk"
+      - uses: typst-community/setup-typst@v5
+      
+      - name: Compile Typst to PDF
+        run: |
+          # 公開用のフォルダを作成
+          mkdir public
+          
+          # publicフォルダの中にPDFを生成
+          typst compile test.typ public/test.pdf --font-path ~/.fontist/fonts
+          
+          # URLにアクセスした際、自動でPDFを開くためのリダイレクト用HTMLを作成
+          echo '<!DOCTYPE html><meta charset="utf-8"><title>Document</title><meta http-equiv="refresh" content="0; URL=test.pdf">' > public/index.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
         
-        - run: typst compile test.typ test.pdf --font-path ~/.fontist/fonts
-        
-        # 生成されたPDFをReleaseにアップロード
-        - name: Upload to Release
-          uses: softprops/action-gh-release@v2
-          with:
-            tag_name: latest
-            name: "最新版 PDF (Latest)"
-            files: test.pdf
-            # Pushのたびに同じタグ(latest)を上書き更新する設定
-            make_latest: true
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
