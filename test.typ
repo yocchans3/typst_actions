@@ -40,9 +40,9 @@ $
 $
 
 
-#note[This is a note callout.]
-#tip[this is a tip callout.]
-#important[this is an important callout.]
+#note[これはnoteのコールアウトです]
+#tip[これはtipのコールアウトです]
+#important[これはimportantのコールアウトです]
 
 
 

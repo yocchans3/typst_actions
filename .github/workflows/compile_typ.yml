@@ -21,10 +21,29 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    steps:
+
+steps:
       - uses: actions/checkout@v7
+      
+      # 1. ~/.fontist フォルダをキャッシュとして保存・復元する設定
+      - name: Cache Fonts
+        id: font-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.fontist
+          # workflowファイルが書き換えられたらキャッシュを無効化するキー設定
+          key: ${{ runner.os }}-fontist-${{ hashFiles('.github/workflows/*.yml') }}
+
+      # 2. fontist コマンドを使えるようにする
       - uses: fontist/setup-fontist@v2
-      - run: fontist install --formula "noto_sans_cjk" && fontist install --formula "noto_serif_cjk"
+
+      # 3. キャッシュヒットしなかった（新規実行 or キャッシュ切れ）場合のみインストール
+      - name: Install CJK Fonts
+        if: steps.font-cache.outputs.cache-hit != 'true'
+        run: |
+          fontist install --formula "noto_sans_cjk"
+          fontist install --formula "noto_serif_cjk"
+
       - uses: typst-community/setup-typst@v5
       
       - name: Compile Typst to PDF
