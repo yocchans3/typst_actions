@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: fontist/setup-fontist@v2
-      - run: fontist install --formula "noto_sans_cjk"
+      - run: fontist install --formula "noto_sans_cjk" && fontist install --formula "noto_serif_cjk"
       - uses: typst-community/setup-typst@v5
       
       - name: Compile Typst to PDF
